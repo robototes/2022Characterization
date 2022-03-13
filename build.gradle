@@ -41,6 +41,8 @@ deploy {
 
 def includeDesktopSupport = true
 
+def deployArtifact = deploy.targets.roborio.artifacts.frcJava
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 4.
 dependencies {
@@ -64,11 +66,7 @@ dependencies {
     testImplementation "junit:junit:4.12"
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.errorprone.disableWarningsInGeneratedCode = true
-}
-
-// Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
+// Setting up my Jar File. In this case, adding all libraries into the main jar ("fat jar")
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
@@ -77,6 +75,7 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
+// Configure jar and deploy tasks
 deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)

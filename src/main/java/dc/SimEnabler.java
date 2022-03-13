@@ -1,22 +1,21 @@
 package dc;
 
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Sendable;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 
 public class SimEnabler implements Sendable {
-  DriverStationSim sim = new DriverStationSim();
 
   public SimEnabler() {
-    sim.setAutonomous(true);
+    DriverStationSim.setAutonomous(true);
   }
 
   public void setEnabled(boolean enabled) {
-    sim.setEnabled(enabled);
-    sim.notifyNewData();
-    DriverStation.getInstance().isNewControlData();
-    while (DriverStation.getInstance().isEnabled() != enabled) {
+    DriverStationSim.setEnabled(enabled);
+    DriverStationSim.notifyNewData();
+    DriverStation.isNewControlData();
+    while (DriverStation.isEnabled() != enabled) {
       try {
         Thread.sleep(1);
       } catch (InterruptedException exception) {
@@ -26,25 +25,9 @@ public class SimEnabler implements Sendable {
   }
 
   @Override
-  public String getName() {
-    return "SimEnabler";
-  }
-
-  @Override
-  public void setName(String name) {}
-
-  @Override
-  public String getSubsystem() {
-    return "";
-  }
-
-  @Override
-  public void setSubsystem(String subsystem) {}
-
-  @Override
   public void initSendable(SendableBuilder builder) {
     builder.addBooleanProperty("Enabled", 
-                               () -> DriverStation.getInstance().isEnabled(), 
+                               () -> DriverStation.isEnabled(), 
                                enabled -> setEnabled(enabled));
   }
 }

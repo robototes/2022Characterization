@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
   static private double ENCODER_EDGES_PER_REV = 2048;
   static private int PIDIDX = 0;
   static private int ENCODER_EPR = 2048;
-  static private double GEARING = 1;
+  static private double GEARING = 1/ ((14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));
 
   private double encoderConstant = (1 / GEARING) * (1 / ENCODER_EDGES_PER_REV);
 
@@ -51,6 +51,9 @@ public class Robot extends TimedRobot {
   NetworkTableEntry autoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
   NetworkTableEntry telemetryEntry = NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
   NetworkTableEntry rotateEntry = NetworkTableInstance.getDefault().getEntry("/robot/rotate");
+
+  public static final double[] ENCODER_OFFSETS = {-Math.toRadians(67.852), -Math.toRadians(221.924), -Math.toRadians(214.980), -Math.toRadians(168.398)};
+  public static final double STEER_RATIO = (15.0 / 32.0) * (10.0 / 60.0);
 
   String data = "";
 
@@ -136,6 +139,7 @@ public class Robot extends TimedRobot {
     WPI_TalonFX rightMotor = setupWPI_TalonFX(4, Sides.RIGHT, true);
     WPI_TalonFX rightFollowerID10 = setupWPI_TalonFX(10, Sides.FOLLOWER, true);
     rightFollowerID10.follow(rightMotor);
+    
     drive = new DifferentialDrive(leftMotor, rightMotor);
     drive.setDeadband(0);
 
@@ -189,8 +193,9 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     System.out.println("Robot in operator control mode");
 
-    for (WPI_TalonFX motor : steerMotors) {
-      motor.set(ControlMode.Position, 0);
+    for (int i = 0; i < steerMotors.length; i++) {
+      //steerMotors[i].set(ControlMode.Position, ENCODER_OFFSETS[i] * 2048.0 / (Math.PI * 2.0 * STEER_RATIO));
+      steerMotors[i].set(ControlMode.Position, 0);
     }
   }
 
@@ -202,6 +207,10 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     System.out.println("Robot in autonomous mode");
+    for (int i = 0; i < steerMotors.length; i++) {
+      steerMotors[i].set(ControlMode.Position, 0);
+    }
+
     startTime = Timer.getFPGATimestamp();
     counter = 0;
   }
@@ -216,7 +225,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-
     // Retrieve values to send back before telling the motors to do something
     double now = Timer.getFPGATimestamp();
 
