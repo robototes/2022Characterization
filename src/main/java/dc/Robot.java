@@ -16,6 +16,8 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
@@ -54,6 +56,50 @@ public class Robot extends TimedRobot {
 
   public static final double[] ENCODER_OFFSETS = {-Math.toRadians(67.852), -Math.toRadians(221.924), -Math.toRadians(214.980), -Math.toRadians(168.398)};
   public static final double STEER_RATIO = (15.0 / 32.0) * (10.0 / 60.0);
+
+  public static final boolean IS_COMPETITION = true;
+  private static final boolean USE_MODULES = true;
+  private static final int DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR = 1, DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR = 4,
+          DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR = 7, DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR = 10;
+  private static final int DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR = 2, DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR = 5,
+          DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR = 8, DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR = 11;
+  private static final int DRIVETRAIN_FRONT_LEFT_ENCODER_PORT = 3, DRIVETRAIN_FRONT_RIGHT_ENCODER_PORT = 6,
+          DRIVETRAIN_BACK_LEFT_ENCODER_PORT = 9, DRIVETRAIN_BACK_RIGHT_ENCODER_PORT = 12;
+  private static final double DRIVETRAIN_FRONT_LEFT_ENCODER_OFFSET = -Math.toRadians(67.852);
+  private static final double DRIVETRAIN_FRONT_RIGHT_ENCODER_OFFSET = -Math.toRadians(221.924);
+  private static final double DRIVETRAIN_BACK_LEFT_ENCODER_OFFSET = -Math.toRadians(214.980);
+  private static final double DRIVETRAIN_BACK_RIGHT_ENCODER_OFFSET = -Math.toRadians(168.398);
+
+  // Changes swerve modules & disables subsystems missing from the swerve test bot
+  private static final Mk4SwerveModuleHelper.GearRatio GEAR_RATIO = IS_COMPETITION ? Mk4SwerveModuleHelper.GearRatio.L2
+            : Mk4SwerveModuleHelper.GearRatio.L1;
+
+  private static final Mk4Configuration FRONT_LEFT_CONFIG = new Mk4Configuration(
+          GEAR_RATIO,
+          DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR,
+          DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR,
+          DRIVETRAIN_FRONT_LEFT_ENCODER_PORT,
+          DRIVETRAIN_FRONT_LEFT_ENCODER_OFFSET);
+  private static final Mk4Configuration FRONT_RIGHT_CONFIG = new Mk4Configuration(
+          GEAR_RATIO,
+          DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR,
+          DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR,
+          DRIVETRAIN_FRONT_RIGHT_ENCODER_PORT,
+          DRIVETRAIN_FRONT_RIGHT_ENCODER_OFFSET);
+  private static final Mk4Configuration BACK_LEFT_CONFIG = new Mk4Configuration(
+          GEAR_RATIO,
+          DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR,
+          DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR,
+          DRIVETRAIN_BACK_LEFT_ENCODER_PORT,
+          DRIVETRAIN_BACK_LEFT_ENCODER_OFFSET);
+  private static final Mk4Configuration BACK_RIGHT_CONFIG = new Mk4Configuration(
+          GEAR_RATIO,
+          DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR,
+          DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR,
+          DRIVETRAIN_BACK_RIGHT_ENCODER_PORT,
+          DRIVETRAIN_BACK_RIGHT_ENCODER_OFFSET);
+
+  private SwerveModule frontLeftModule, frontRightModule, backLeftModule, backRightModule;
 
   String data = "";
 
@@ -130,18 +176,40 @@ public class Robot extends TimedRobot {
 
     stick = new Joystick(0);
 
-    // create left motor
-    WPI_TalonFX leftMotor = setupWPI_TalonFX(1, Sides.LEFT, true);
+    if (USE_MODULES) {
+      frontLeftModule = FRONT_LEFT_CONFIG.create(IS_COMPETITION);
+      frontRightModule = FRONT_RIGHT_CONFIG.create(IS_COMPETITION);
+      backLeftModule = BACK_LEFT_CONFIG.create(IS_COMPETITION);
+      backRightModule = BACK_RIGHT_CONFIG.create(IS_COMPETITION);
 
-    WPI_TalonFX leftFollowerID7 = setupWPI_TalonFX(7, Sides.FOLLOWER, true);
-    leftFollowerID7.follow(leftMotor);
+      WPI_TalonFX frontRightMotor = (WPI_TalonFX) frontRightModule.getDriveMotor();
+      frontRightMotor.setSensorPhase(false);
+      rightEncoderPosition = () -> frontRightMotor.getSelectedSensorPosition(PIDIDX) * encoderConstant;
+      rightEncoderRate = () -> frontRightMotor.getSelectedSensorVelocity(PIDIDX) * encoderConstant * 10;
 
-    WPI_TalonFX rightMotor = setupWPI_TalonFX(4, Sides.RIGHT, true);
-    WPI_TalonFX rightFollowerID10 = setupWPI_TalonFX(10, Sides.FOLLOWER, true);
-    rightFollowerID10.follow(rightMotor);
-    
-    drive = new DifferentialDrive(leftMotor, rightMotor);
-    drive.setDeadband(0);
+      WPI_TalonFX frontLeftMotor = (WPI_TalonFX) frontLeftModule.getDriveMotor();
+      frontLeftMotor.setSensorPhase(false);
+      leftEncoderPosition = () -> frontLeftMotor.getSelectedSensorPosition(PIDIDX) * encoderConstant;
+      leftEncoderRate = () -> frontLeftMotor.getSelectedSensorVelocity(PIDIDX) * encoderConstant * 10;
+    } else {
+      // create left motor
+      WPI_TalonFX leftMotor = setupWPI_TalonFX(1, Sides.LEFT, true);
+
+      WPI_TalonFX leftFollowerID7 = setupWPI_TalonFX(7, Sides.FOLLOWER, true);
+      leftFollowerID7.follow(leftMotor);
+
+      WPI_TalonFX rightMotor = setupWPI_TalonFX(4, Sides.RIGHT, true);
+      WPI_TalonFX rightFollowerID10 = setupWPI_TalonFX(10, Sides.FOLLOWER, true);
+      rightFollowerID10.follow(rightMotor);
+
+      drive = new DifferentialDrive(leftMotor, rightMotor);
+      drive.setDeadband(0);
+
+      // config steer motors
+      for (WPI_TalonFX motor : steerMotors) {
+        motor.setNeutralMode(NeutralMode.Brake);
+      }
+    }
 
     //
     // Configure gyro
@@ -154,18 +222,21 @@ public class Robot extends TimedRobot {
     // Set the update rate instead of using flush because of a ntcore bug
     // -> probably don't want to do this on a robot in competition
     NetworkTableInstance.getDefault().setUpdateRate(0.010);
-
-    // config steer motors
-    for (WPI_TalonFX motor : steerMotors) {
-      motor.setNeutralMode(NeutralMode.Brake);
-    }
   }
 
   @Override
   public void disabledInit() {
     double elapsedTime = Timer.getFPGATimestamp() - startTime;
     System.out.println("Robot disabled");
-    drive.tankDrive(0, 0);
+    if (USE_MODULES) {
+      frontLeftModule.set(0.0, 0.0);
+      frontRightModule.set(0.0, 0.0);
+      backLeftModule.set(0.0, 0.0);
+      backRightModule.set(0.0, 0.0);
+    } else {
+      drive.tankDrive(0, 0);
+    }
+
     // data processing step
     data = entries.toString();
     data = data.substring(1, data.length() - 1) + ", ";
@@ -193,22 +264,36 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     System.out.println("Robot in operator control mode");
 
-    for (int i = 0; i < steerMotors.length; i++) {
-      //steerMotors[i].set(ControlMode.Position, ENCODER_OFFSETS[i] * 2048.0 / (Math.PI * 2.0 * STEER_RATIO));
-      steerMotors[i].set(ControlMode.Position, 0);
+    if (USE_MODULES) {
+    } else {
+      for (int i = 0; i < steerMotors.length; i++) {
+        //steerMotors[i].set(ControlMode.Position, ENCODER_OFFSETS[i] * 2048.0 / (Math.PI * 2.0 * STEER_RATIO));
+        steerMotors[i].set(ControlMode.Position, 0);
+      }
     }
   }
 
   @Override
   public void teleopPeriodic() {
-    drive.arcadeDrive(-stick.getY(), stick.getX());
+    if (USE_MODULES) {
+      double speed = -stick.getY();
+      frontLeftModule.set(speed, 0.0);
+      frontRightModule.set(speed, 0.0);
+      backLeftModule.set(speed, 0.0);
+      backRightModule.set(speed, 0.0);
+    } else {
+      drive.arcadeDrive(-stick.getY(), stick.getX());
+    }
   }
 
   @Override
   public void autonomousInit() {
     System.out.println("Robot in autonomous mode");
-    for (int i = 0; i < steerMotors.length; i++) {
-      steerMotors[i].set(ControlMode.Position, 0);
+    if (USE_MODULES) {
+    } else {
+      for (int i = 0; i < steerMotors.length; i++) {
+        steerMotors[i].set(ControlMode.Position, 0);
+      }
     }
 
     startTime = Timer.getFPGATimestamp();
@@ -227,6 +312,13 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     // Retrieve values to send back before telling the motors to do something
     double now = Timer.getFPGATimestamp();
+    double battery = RobotController.getBatteryVoltage();
+    double motorVolts = battery * Math.abs(priorAutospeed);
+    double leftMotorVolts = motorVolts;
+    double rightMotorVolts = motorVolts;
+    // Retrieve the commanded speed from NetworkTables
+    double autospeed = autoSpeedEntry.getDouble(0);
+    priorAutospeed = autospeed;
 
     double leftPosition = leftEncoderPosition.get();
     double leftRate = leftEncoderRate.get();
@@ -234,20 +326,17 @@ public class Robot extends TimedRobot {
     double rightPosition = rightEncoderPosition.get();
     double rightRate = rightEncoderRate.get();
 
-    double battery = RobotController.getBatteryVoltage();
-    double motorVolts = battery * Math.abs(priorAutospeed);
-
-    double leftMotorVolts = motorVolts;
-    double rightMotorVolts = motorVolts;
-
-    // Retrieve the commanded speed from NetworkTables
-    double autospeed = autoSpeedEntry.getDouble(0);
-    priorAutospeed = autospeed;
-
     // command motors to do things
-    drive.tankDrive(
-        (rotateEntry.getBoolean(false) ? -1 : 1) * autospeed, autospeed,
-        false);
+    if (USE_MODULES) {
+      frontLeftModule.set(autospeed * battery, 0.0);
+      frontRightModule.set(autospeed * battery, 0.0);
+      backLeftModule.set(autospeed * battery, 0.0);
+      backRightModule.set(autospeed * battery, 0.0);
+    } else {
+      drive.tankDrive(
+              (rotateEntry.getBoolean(false) ? -1 : 1) * autospeed, autospeed,
+              false);
+    }
 
     numberArray[0] = now;
     numberArray[1] = battery;
