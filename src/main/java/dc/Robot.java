@@ -184,13 +184,13 @@ public class Robot extends TimedRobot {
 
       WPI_TalonFX frontRightMotor = (WPI_TalonFX) frontRightModule.getDriveMotor();
       frontRightMotor.setSensorPhase(false);
-      rightEncoderPosition = () -> frontRightMotor.getSelectedSensorPosition(PIDIDX) * encoderConstant;
-      rightEncoderRate = () -> frontRightMotor.getSelectedSensorVelocity(PIDIDX) * encoderConstant * 10;
+      rightEncoderPosition = () -> frontRightMotor.getSelectedSensorPosition(PIDIDX) * FRONT_LEFT_CONFIG.getRatio().getConfiguration().getDriveReduction() / ENCODER_EDGES_PER_REV;
+      rightEncoderRate = () -> frontRightMotor.getSelectedSensorVelocity(PIDIDX) * 10.0 * FRONT_LEFT_CONFIG.getRatio().getConfiguration().getDriveReduction() / ENCODER_EDGES_PER_REV;
 
       WPI_TalonFX frontLeftMotor = (WPI_TalonFX) frontLeftModule.getDriveMotor();
       frontLeftMotor.setSensorPhase(false);
-      leftEncoderPosition = () -> frontLeftMotor.getSelectedSensorPosition(PIDIDX) * encoderConstant;
-      leftEncoderRate = () -> frontLeftMotor.getSelectedSensorVelocity(PIDIDX) * encoderConstant * 10;
+      leftEncoderPosition = () -> frontLeftMotor.getSelectedSensorPosition(PIDIDX) * FRONT_LEFT_CONFIG.getRatio().getConfiguration().getDriveReduction() / ENCODER_EDGES_PER_REV;
+      leftEncoderRate = () -> frontLeftMotor.getSelectedSensorVelocity(PIDIDX) * 10.0 * FRONT_LEFT_CONFIG.getRatio().getConfiguration().getDriveReduction() / ENCODER_EDGES_PER_REV;
     } else {
       // create left motor
       WPI_TalonFX leftMotor = setupWPI_TalonFX(1, Sides.LEFT, true);
