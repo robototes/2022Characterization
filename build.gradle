@@ -63,6 +63,8 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
+    implementation "com.github.robototes:swerve-lib:aa8442ea29"
+
     testImplementation "junit:junit:4.12"
 }
 
