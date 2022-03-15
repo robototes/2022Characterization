@@ -70,7 +70,7 @@ public class Robot extends TimedRobot {
   private static final double DRIVETRAIN_BACK_LEFT_ENCODER_OFFSET = -Math.toRadians(214.980);
   private static final double DRIVETRAIN_BACK_RIGHT_ENCODER_OFFSET = -Math.toRadians(168.398);
 
-  // Changes swerve modules & disables subsystems missing from the swerve test bot
+  // Changes swerve modules to correct gearing
   private static final Mk4SwerveModuleHelper.GearRatio GEAR_RATIO = IS_COMPETITION ? Mk4SwerveModuleHelper.GearRatio.L2
             : Mk4SwerveModuleHelper.GearRatio.L1;
 
