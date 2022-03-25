@@ -79,25 +79,29 @@ public class Robot extends TimedRobot {
           DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR,
           DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR,
           DRIVETRAIN_FRONT_LEFT_ENCODER_PORT,
-          DRIVETRAIN_FRONT_LEFT_ENCODER_OFFSET);
+          DRIVETRAIN_FRONT_LEFT_ENCODER_OFFSET,
+          "DrivebaseIntake");
   private static final Mk4Configuration FRONT_RIGHT_CONFIG = new Mk4Configuration(
           GEAR_RATIO,
           DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR,
           DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR,
           DRIVETRAIN_FRONT_RIGHT_ENCODER_PORT,
-          DRIVETRAIN_FRONT_RIGHT_ENCODER_OFFSET);
+          DRIVETRAIN_FRONT_RIGHT_ENCODER_OFFSET,
+          "DrivebaseIntake");
   private static final Mk4Configuration BACK_LEFT_CONFIG = new Mk4Configuration(
           GEAR_RATIO,
           DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR,
           DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR,
           DRIVETRAIN_BACK_LEFT_ENCODER_PORT,
-          DRIVETRAIN_BACK_LEFT_ENCODER_OFFSET);
+          DRIVETRAIN_BACK_LEFT_ENCODER_OFFSET,
+          "DrivebaseIntake");
   private static final Mk4Configuration BACK_RIGHT_CONFIG = new Mk4Configuration(
           GEAR_RATIO,
           DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR,
           DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR,
           DRIVETRAIN_BACK_RIGHT_ENCODER_PORT,
-          DRIVETRAIN_BACK_RIGHT_ENCODER_OFFSET);
+          DRIVETRAIN_BACK_RIGHT_ENCODER_OFFSET,
+          "DrivebaseIntake");
 
   private SwerveModule frontLeftModule, frontRightModule, backLeftModule, backRightModule;
 
