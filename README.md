@@ -10,7 +10,8 @@ kV: 0.0574
 kA: 0.00275
 r-squared (confidence): 0.995
 
-kP (for PID): 0.111```
+kP (for PID): 0.111
+```
 
 ## Road Runner Characterization (3/24/22)
 Values from initial Road Runner charaterization
@@ -23,7 +24,8 @@ kV: 0.0593
 kA: 0.00195
 r-squared (confidence): 0.999
 
-kP (for PID): 0.0708```
+kP (for PID): 0.0708
+```
 
 ### Above values but meters (for WPILib)
 
@@ -35,4 +37,5 @@ kV: 2.33
 kA: 0.0766
 r-squared (confidence): 0.999
 
-kP (for PID): 1.38```
+kP (for PID): 1.38
+```
